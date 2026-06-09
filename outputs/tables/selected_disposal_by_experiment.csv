@@ -1,0 +1,4 @@
+experiment,runs,disposed_products,mean_disposed_per_run,products,total_products_including_disposed,disposal_rate
+10,20,0,0.0,134802,134802,0.0
+14,20,0,0.0,134802,134802,0.0
+23,20,6668,333.4,128134,134802,0.049465141466743814

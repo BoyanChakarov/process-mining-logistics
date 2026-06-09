@@ -6,7 +6,10 @@ data/raw/
 data/interim/
 data/processed/
 
-outputs/
+
+outputs/tables/selected_output_combined.csv
+outputs/xes/
+
 *.zip
 *.log
 .env
