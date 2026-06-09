@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+data/raw/
+data/interim/
+data/processed/
+
+outputs/
+*.zip
+*.log
+.env

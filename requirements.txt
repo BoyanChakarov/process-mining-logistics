@@ -1,0 +1,9 @@
+pm4py
+pandas
+numpy
+matplotlib
+openpyxl
+jupyter
+ipykernel
+graphviz
+tqdm
