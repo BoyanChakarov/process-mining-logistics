@@ -20,19 +20,20 @@ def clean_vehicle_type(value):
     value = str(value).strip()
 
     invalid_values = ["", "NA", "nan", "None", "ERROR DATA TYPE!", "(?)"]
-
     if value in invalid_values:
         return None
 
-    # Expected examples: UAV:2, HDF:1, AGV:4
-    match = re.match(r"([A-Za-z]+)", value)
+    # Expected examples:
+    # .Models.MUs.AGV:1
+    # .Models.MUs.HDF:2
+    # .Models.MUs.UAV:4
+    match = re.search(r"(UAV|HDF|AGV)", value)
 
     if match:
         return match.group(1)
 
     return None
 
-# Use recommended vehicle columns from output data
 vehicle_columns = {
     "Region 1": {
         "vehicle_col": "vehiclePickedUpRegion1",
@@ -71,7 +72,7 @@ for region, cols in vehicle_columns.items():
         temp
         .groupby(["experiment_id", "region", "vehicle_type_clean"])
         .agg(
-            products=("productIDString", "count") if "productIDString" in temp.columns else (vehicle_col, "count"),
+            products=(vehicle_col, "count"),
             mean_waiting_time=(waiting_col, "mean"),
             mean_travel_time=(travel_col, "mean")
         )
@@ -85,7 +86,6 @@ if not rows:
 
 resource_table = pd.concat(rows, ignore_index=True)
 
-# Add share within experiment and region
 resource_table["total_region_products"] = (
     resource_table
     .groupby(["experiment_id", "region"])["products"]
@@ -104,7 +104,6 @@ resource_table = resource_table.sort_values(
 resource_path = TABLES_DIR / "vehicle_resource_analysis.csv"
 resource_table.to_csv(resource_path, index=False)
 
-# Compact report version
 report_table = resource_table.copy()
 report_table["share_percent"] = report_table["share"] * 100
 
