@@ -1,126 +1,112 @@
 # Process Mining for Quality-Aware Smart-Pallet Logistics
 
-This repository contains the reproducible workflow for the Process Mining group project on quality-aware smart-pallet logistics.
+**A reproducible Python and PM4Py analysis of how dispatching rules and fleet composition affect waiting time, cycle time, process stability, and product disposal.**
 
-The project analyzes a simulation-generated logistics dataset involving products transported through three regions using UAVs, human-driven forklifts, and automated guided vehicles. The goal is to compare dispatching and fleet configurations using process mining and KPI analysis.
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
+![PM4Py](https://img.shields.io/badge/Process%20Mining-PM4Py-6F42C1)
+![Pandas](https://img.shields.io/badge/Data-Pandas-150458?logo=pandas&logoColor=white)
+![Reproducible](https://img.shields.io/badge/Analysis-Reproducible-2EA44F)
 
-## Research Focus
+## Project at a glance
 
-The project compares three experiment configurations:
+This university group project evaluates a simulated cold-chain logistics process in which quality-sensitive products travel on smart pallets through three regions. The analysis compares a random-dispatching baseline with quality-aware dispatching and an alternative fleet without UAVs.
 
-- Experiment 10: balanced fleet with random dispatching
-- Experiment 14: balanced fleet with quality-aware and shortest-distance dispatching
-- Experiment 23: no-UAV fleet with quality-aware and shortest-distance dispatching
+| Scope | Value |
+|---|---:|
+| Experiment configurations compared | 3 |
+| Simulation runs analyzed | 60 |
+| Product cases | 460,342 |
+| Process events | 4,915,054 |
+| Activities discovered | 11–12 |
+| Primary tools | Python, PM4Py, Pandas, Matplotlib, Graphviz |
 
-The main research objective is to identify which configuration leads to the most stable product lifecycle, lowest waiting time, lowest cycle time, and lowest product disposal.
+## Key result
 
-## Methods
+**The quality-aware balanced-fleet configuration (Experiment 14) delivered the strongest overall performance.** Against the random-dispatching baseline, it reduced mean total waiting time by **61.3%**, shortened mean cycle time by **5.3%**, preserved **98.44% exact lifecycle conformance**, and produced **zero disposals**.
 
-The analysis includes:
+| KPI | Baseline: Exp. 10 | Recommended: Exp. 14 | No-UAV: Exp. 23 |
+|---|---:|---:|---:|
+| Mean total waiting time | 14.32 | **5.54** | 34.46 |
+| Mean cycle time | 272.37 | **258.03** | 1,585.85 |
+| Exact expected lifecycle | 98.35% | **98.44%** | 85.35% |
+| Product disposal rate | **0.00%** | **0.00%** | 4.95% |
 
-- event log preprocessing
-- Directly-Follows Graph discovery
-- variant analysis
-- expected lifecycle conformance analysis
-- KPI comparison
-- disposal analysis
-- vehicle/resource analysis
-- report figure generation
+The no-UAV configuration created longer queues and less stable product flows. Although its observed quality-decay value was lower, that figure is misleading because 6,668 products were disposed before completion.
 
-## Repository Structure
+## Analysis workflow
+
+```mermaid
+flowchart LR
+    A["Simulation event logs"] --> B["Clean and create case IDs"]
+    B --> C["Discover process flows and variants"]
+    C --> D["Check lifecycle conformance"]
+    D --> E["Compare KPIs, disposal, and resources"]
+    E --> F["Generate figures and IEEE report"]
+```
+
+The pipeline:
+
+1. Loads warm-up-filtered event logs and experiment outputs.
+2. Cleans timestamps, activities, product IDs, vehicle attributes, and quality information.
+3. Builds unique case identifiers across experiments and runs.
+4. Discovers Directly-Follows Graphs and process variants with PM4Py.
+5. Checks traces against the expected product lifecycle.
+6. Compares waiting time, cycle time, disposal, quality decay, and vehicle utilization.
+7. Generates publication-ready tables, figures, and a final report.
+
+## Selected outputs
+
+<p align="center">
+  <img src="outputs/figures/total_waiting_time_by_experiment.png" width="32%" alt="Mean total waiting time by experiment">
+  <img src="outputs/figures/cycle_time_by_experiment.png" width="32%" alt="Mean cycle time by experiment">
+  <img src="outputs/figures/disposal_rate_by_experiment.png" width="32%" alt="Product disposal rate by experiment">
+</p>
+
+Directly-Follows Graphs for [Experiment 10](outputs/figures/Exp10_all_runs_dfg.png), [Experiment 14](outputs/figures/Exp14_all_runs_dfg.png), and [Experiment 23](outputs/figures/Exp23_all_runs_dfg.png) show the differences in process stability and incomplete lifecycles.
+
+## Capabilities demonstrated
+
+- **Process mining:** event-log preparation, Directly-Follows Graph discovery, variant analysis, and conformance-style checking
+- **Data analysis:** multi-run KPI aggregation, disposal analysis, and vehicle/resource comparison with Pandas and NumPy
+- **Reproducible research:** ordered scripts, documented data contracts, generated outputs, and dependency management
+- **Data visualization:** analytical figures with Matplotlib and process models with Graphviz
+- **Technical communication:** an IEEE-style report that connects analytical findings to operational recommendations
+
+## Repository structure
 
 ```text
 process-mining-logistics/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── data/
-│   └── README.md
-├── src/
-│   ├── 00_check_setup.py
-│   ├── 01_load_one_log.py
-│   ├── 02_preprocess_one_log.py
-│   ├── 03_discovery_one_log.py
-│   ├── 04_preprocess_selected_experiments.py
-│   ├── 05_kpi_comparison_selected.py
-│   ├── 06_disposal_analysis_selected.py
-│   ├── 08_discovery_selected_experiments.py
-│   ├── 09_expected_lifecycle_conformance.py
-│   ├── 10_vehicle_resource_analysis.py
-│   └── 11_generate_final_report_figures.py
+├── src/                 # Ordered preprocessing and analysis scripts
+├── data/README.md       # Dataset setup and expected folder structure
 ├── outputs/
-│   ├── figures/
-│   └── tables/
-└── report/
-    ├── process_mining_logistics_report.tex
-    └── process_mining_logistics_report.pdf
+│   ├── figures/         # DFGs and KPI charts
+│   └── tables/          # Aggregated results and report tables
+├── report/
+│   ├── process_mining_logistics_report.tex
+│   └── process_mining_logistics_report.pdf
+├── requirements.txt
+└── README.md
 ```
 
-## Data
+## Run the analysis
 
-The raw dataset is not included in this repository because of its large size.
-
-To reproduce the analysis, download and extract the original dataset locally and place it in:
-
-```text
-data/raw/
-```
-
-Expected local data structure:
-
-```text
-data/raw/
-├── Input/
-├── LogFiles/
-├── LogFilesProductWarmupFilter/
-├── Output/
-├── OutputWarmupFilter/
-└── experimentResults.xlsx
-```
-
-The main files used in this project are:
-
-- `LogFilesProductWarmupFilter/Exp{experiment}Run{run}.txt`
-- `OutputWarmupFilter/Exp{experiment}Run{run}.txt`
-- `OutputWarmupFilter/DisposedProducts{experiment}Run{run}.txt`
-
-The selected experiments are 10, 14, and 23, using runs 1 to 20.
-
-See `data/README.md` for more details.
-
-## Setup
-
-This project was developed using Python and PM4Py.
-
-Create a virtual environment:
+### 1. Set up the environment
 
 ```powershell
+git clone https://github.com/BoyanChakarov/process-mining-logistics.git
+cd process-mining-logistics
 py -3.13 -m venv .venv
-```
-
-Activate it:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
-```
-
-Install dependencies:
-
-```powershell
 pip install -r requirements.txt
 ```
 
-Graphviz must also be installed on the system for PM4Py visualizations.
+Graphviz must also be installed and available on the system path. Verify it with `dot -V`.
 
-Check Graphviz:
+### 2. Add the source data
 
-```powershell
-dot -V
-```
+The raw simulation dataset is not tracked because of its size. Download and extract it locally under `data/raw/` using the structure documented in [`data/README.md`](data/README.md).
 
-## Reproduce the Analysis
-
-After placing the raw data in `data/raw/`, run the scripts in this order:
+### 3. Reproduce the results
 
 ```powershell
 python src\02_preprocess_one_log.py
@@ -134,66 +120,30 @@ python src\10_vehicle_resource_analysis.py
 python src\11_generate_final_report_figures.py
 ```
 
-## Main Outputs
+Generated artifacts are written to `outputs/tables/`, `outputs/figures/`, and `outputs/xes/`.
 
-Important generated tables:
+## Report and detailed results
 
-```text
-outputs/tables/selected_discovery_summary.csv
-outputs/tables/expected_lifecycle_conformance.csv
-outputs/tables/expected_lifecycle_conformance_pivot.csv
-outputs/tables/selected_kpi_report_table.csv
-outputs/tables/selected_disposal_by_experiment.csv
-outputs/tables/vehicle_resource_report_table.csv
-```
+The complete methodology, findings, operational recommendations, and limitations are available in the [final report](report/process_mining_logistics_report.pdf).
 
-Important generated figures:
+Key generated tables include:
 
-```text
-outputs/figures/Exp10_all_runs_dfg.png
-outputs/figures/Exp14_all_runs_dfg.png
-outputs/figures/Exp23_all_runs_dfg.png
-outputs/figures/total_waiting_time_by_experiment.png
-outputs/figures/cycle_time_by_experiment.png
-outputs/figures/disposal_rate_by_experiment.png
-```
+- [`selected_kpi_report_table.csv`](outputs/tables/selected_kpi_report_table.csv)
+- [`selected_disposal_by_experiment.csv`](outputs/tables/selected_disposal_by_experiment.csv)
+- [`expected_lifecycle_conformance_pivot.csv`](outputs/tables/expected_lifecycle_conformance_pivot.csv)
+- [`vehicle_resource_report_table.csv`](outputs/tables/vehicle_resource_report_table.csv)
 
-## Report
+## Limitations and next steps
 
-The final report is available in:
+- The event logs come from a simulation, so findings should be validated before applying them to a real logistics operation.
+- The current comparison covers 3 of 27 available configurations.
+- Warm-up filtering can create traces that start late or end early at simulation boundaries.
+- The current case notion centers on products; object-centric process mining could model products and vehicles together.
 
-```text
-report/process_mining_logistics_report.pdf
-```
-
-The LaTeX source file is available in:
-
-```text
-report/process_mining_logistics_report.tex
-```
-
-## Summary of Findings
-
-The analysis shows that Experiment 14 is the strongest selected configuration. Compared with the baseline configuration in Experiment 10, it reduces total waiting time and cycle time while maintaining high lifecycle conformance and zero product disposal.
-
-Experiment 23 is not recommended because it has lower lifecycle conformance, higher waiting time, much higher cycle time, and a 4.95% product disposal rate.
-
-## Notes on Large Files
-
-The following files are intentionally not tracked in Git because they are large or reproducible intermediate files:
-
-```text
-data/raw/
-data/interim/
-data/processed/
-outputs/xes/
-outputs/tables/selected_output_combined.csv
-```
-
-These files can be regenerated locally by running the scripts after placing the raw dataset in `data/raw/`.
+Future work could extend the pipeline to all experiments and add predictive monitoring for products at risk of excessive quality decay.
 
 ## Authors
 
-- Boyan Chakarov
-- Johan Tunc
-- Sem de Jong
+- Boyan Chakarov — University of Twente
+- Johan Tunc — University of Twente
+- Sem de Jong — University of Twente
